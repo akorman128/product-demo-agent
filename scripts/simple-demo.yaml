@@ -1,0 +1,42 @@
+demo:
+  name: "Simple Website Demo"
+  description: "Basic demo for testing the system"
+
+  config:
+    baseUrl: "https://example.com"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/simple-demo.webm"
+    slowMo: 200
+
+  auth:
+    type: "none"
+
+  steps:
+    - type: "navigate"
+      url: "/"
+      wait: "load"
+
+    - type: "wait"
+      duration: 1000
+
+    - type: "narration"
+      text: "Welcome to our demo"
+      position: "center"
+      fontSize: 32
+      duration: 2500
+
+    - type: "highlight"
+      selector: "h1"
+      color: "#FF6B6B"
+      style: "pulse"
+      duration: 2000
+
+    - type: "screenshot"
+      path: "./screenshots/homepage.png"
+
+    - type: "narration"
+      text: "Demo complete!"
+      position: "bottom"
+      duration: 2000

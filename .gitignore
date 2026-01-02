@@ -1,0 +1,10 @@
+node_modules/
+dist/
+recordings/
+screenshots/
+*.log
+.env
+.DS_Store
+*.webm
+*.mp4
+error-screenshot.png

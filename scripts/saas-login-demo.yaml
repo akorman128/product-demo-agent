@@ -1,0 +1,78 @@
+demo:
+  name: "SaaS Platform Login Demo"
+  description: "Demonstrates user authentication and dashboard navigation"
+
+  config:
+    baseUrl: "https://example.com"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/saas-login-demo.webm"
+    slowMo: 300
+
+  auth:
+    type: "form"
+    url: "/login"
+    credentials:
+      username: "demo@example.com"
+      password: "demo123"
+    selectors:
+      usernameField: "#email"
+      passwordField: "#password"
+      submitButton: "button[type='submit']"
+
+  steps:
+    - type: "navigate"
+      url: "/dashboard"
+      wait: "networkidle"
+
+    - type: "wait"
+      duration: 1000
+
+    - type: "narration"
+      text: "Welcome to the dashboard - your command center"
+      position: "bottom"
+      duration: 3000
+
+    - type: "highlight"
+      selector: ".welcome-banner"
+      color: "#4A90E2"
+      duration: 2000
+      style: "pulse"
+
+    - type: "scroll"
+      target: ".stats-section"
+      behavior: "smooth"
+
+    - type: "zoom"
+      selector: ".revenue-chart"
+      scale: 1.5
+      duration: 3000
+
+    - type: "narration"
+      text: "Track your revenue growth in real-time"
+      position: "bottom"
+      duration: 3000
+
+    - type: "screenshot"
+      path: "./screenshots/dashboard-revenue.png"
+
+    - type: "navigate"
+      url: "/reports"
+      wait: "networkidle"
+
+    - type: "spotlight"
+      selector: ".report-card:first-child"
+      duration: 2500
+      dimness: 0.75
+
+    - type: "click"
+      selector: ".report-card:first-child"
+
+    - type: "wait"
+      duration: 1500
+
+    - type: "narration"
+      text: "Generate detailed reports with one click"
+      position: "bottom"
+      duration: 3000

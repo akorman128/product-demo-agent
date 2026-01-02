@@ -1,0 +1,93 @@
+demo:
+  name: "Product Feature Tour"
+  description: "Comprehensive walkthrough of key product features"
+
+  config:
+    baseUrl: "https://app.example.com"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/feature-tour.webm"
+    slowMo: 400
+
+  auth:
+    type: "none"
+
+  steps:
+    - type: "navigate"
+      url: "/"
+      wait: "load"
+
+    - type: "narration"
+      text: "Let's explore the powerful features of our platform"
+      position: "center"
+      fontSize: 32
+      duration: 3000
+
+    - type: "wait"
+      duration: 500
+
+    - type: "highlight"
+      selector: "nav"
+      color: "#6C5CE7"
+      style: "glow"
+      duration: 2000
+
+    - type: "click"
+      selector: "a[href='/features']"
+
+    - type: "wait"
+      selector: ".feature-grid"
+
+    - type: "scroll"
+      target: ".feature-card:nth-child(1)"
+      behavior: "smooth"
+
+    - type: "spotlight"
+      selector: ".feature-card:nth-child(1)"
+      duration: 3000
+      dimness: 0.8
+
+    - type: "narration"
+      text: "Feature 1: Real-time collaboration"
+      position: "bottom"
+      duration: 3000
+
+    - type: "scroll"
+      target: ".feature-card:nth-child(2)"
+      behavior: "smooth"
+
+    - type: "zoom"
+      selector: ".feature-card:nth-child(2)"
+      scale: 1.4
+      duration: 3000
+
+    - type: "narration"
+      text: "Feature 2: Advanced analytics and insights"
+      position: "bottom"
+      duration: 3000
+
+    - type: "scroll"
+      target: ".feature-card:nth-child(3)"
+      behavior: "smooth"
+
+    - type: "highlight"
+      selector: ".feature-card:nth-child(3)"
+      color: "#00B894"
+      style: "pulse"
+      duration: 3000
+
+    - type: "narration"
+      text: "Feature 3: Seamless integrations"
+      position: "bottom"
+      duration: 3000
+
+    - type: "screenshot"
+      path: "./screenshots/features-overview.png"
+      fullPage: true
+
+    - type: "narration"
+      text: "Ready to get started? Sign up today!"
+      position: "center"
+      fontSize: 28
+      duration: 4000

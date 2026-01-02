@@ -1,0 +1,116 @@
+demo:
+  name: "E-Commerce Checkout Flow"
+  description: "Complete user journey from product selection to purchase"
+
+  config:
+    baseUrl: "https://shop.example.com"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/checkout-demo.webm"
+    slowMo: 350
+
+  auth:
+    type: "form"
+    url: "/account/login"
+    credentials:
+      username: "shopper@example.com"
+      password: "shop123"
+    selectors:
+      usernameField: "input[name='email']"
+      passwordField: "input[name='password']"
+      submitButton: "button.login-btn"
+
+  steps:
+    - type: "navigate"
+      url: "/products"
+      wait: "networkidle"
+
+    - type: "narration"
+      text: "Browse our product catalog"
+      position: "top"
+      duration: 2500
+
+    - type: "scroll"
+      target: ".product-grid"
+      behavior: "smooth"
+
+    - type: "highlight"
+      selector: ".product-card:nth-child(3)"
+      color: "#FF6B6B"
+      style: "pulse"
+      duration: 2000
+
+    - type: "click"
+      selector: ".product-card:nth-child(3) .add-to-cart"
+
+    - type: "wait"
+      duration: 1000
+
+    - type: "narration"
+      text: "Item added to cart"
+      position: "top"
+      duration: 2000
+
+    - type: "spotlight"
+      selector: ".cart-icon"
+      duration: 2000
+      dimness: 0.85
+
+    - type: "click"
+      selector: ".cart-icon"
+
+    - type: "wait"
+      selector: ".cart-items"
+
+    - type: "zoom"
+      selector: ".cart-summary"
+      scale: 1.3
+      duration: 2500
+
+    - type: "narration"
+      text: "Review your order"
+      position: "bottom"
+      duration: 2500
+
+    - type: "click"
+      selector: ".checkout-btn"
+
+    - type: "wait"
+      selector: ".checkout-form"
+
+    - type: "narration"
+      text: "Fast and secure checkout"
+      position: "top"
+      duration: 2500
+
+    - type: "type"
+      selector: "#shipping-address"
+      text: "123 Main Street"
+      speed: 80
+      clear: true
+
+    - type: "type"
+      selector: "#city"
+      text: "San Francisco"
+      speed: 80
+
+    - type: "type"
+      selector: "#zip"
+      text: "94102"
+      speed: 80
+
+    - type: "highlight"
+      selector: ".payment-methods"
+      color: "#4ECDC4"
+      style: "glow"
+      duration: 2000
+
+    - type: "screenshot"
+      path: "./screenshots/checkout-page.png"
+
+    - type: "narration"
+      text: "Complete your purchase with confidence"
+      position: "bottom"
+      fontSize: 26
+      duration: 3000
