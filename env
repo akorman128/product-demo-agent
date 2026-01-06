@@ -1,0 +1,15 @@
+### Example environment variables for product-demo-agent
+#
+# Copy this to `.env` and fill in real values:
+#   cp env.example .env
+#
+# NOTE: `.env` is already ignored by git via `.gitignore`
+
+# Fanfix example (used by scripts/fanfix-send-message.yaml if you enable form auth)
+FANFIX_EMAIL=alex_creator@fanfix.io
+FANFIX_PASSWORD=dgm.XVN_xpc8kja*bru
+
+# Optional: AI narration
+ANTHROPIC_API_KEY="your-api-key"
+
+

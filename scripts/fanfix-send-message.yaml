@@ -1,0 +1,61 @@
+demo:
+  name: "Fanfix - Send a Message (Zoomed Send)"
+  description: "Opens a Fanfix message thread, types a message, zooms in on Send, and clicks it."
+
+  config:
+    baseUrl: "https://creator.fanfix.dev"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/fanfix-send-message.webm"
+    slowMo: 250
+    headless: false
+    # Recommended: capture once with scripts/fanfix-capture-session.yaml, then reuse for runs.
+    storageStatePath: "./.sessions/fanfix-storage-state.json"
+
+  # auth:
+  #   type: "none"
+
+  # If you want the demo to log in automatically, switch auth to "form" and use env vars:
+
+  auth:
+    type: "none"
+
+  steps:
+    - type: "navigate"
+      url: "https://creator.fanfix.dev/messages/db66b8ad-62d6-490b-b629-9b3761aed25f"
+      # Fanfix pages often keep background network activity; "load" is more reliable than "networkidle".
+      wait: "load"
+
+    - type: "wait"
+      duration: 1500
+
+    # Wait for the message composer to be visible
+    - type: "wait"
+      selector: "form:has(textarea:visible, [contenteditable='true']:visible) textarea:visible, form:has(textarea:visible, [contenteditable='true']:visible) [contenteditable='true']:visible, textarea:visible, [contenteditable='true']:visible"
+      timeout: 120000
+
+    - type: "click"
+      selector: "form:has(textarea:visible, [contenteditable='true']:visible) textarea:visible, form:has(textarea:visible, [contenteditable='true']:visible) [contenteditable='true']:visible, textarea:visible, [contenteditable='true']:visible"
+
+    - type: "type"
+      selector: "form:has(textarea:visible, [contenteditable='true']:visible) textarea:visible, form:has(textarea:visible, [contenteditable='true']:visible) [contenteditable='true']:visible, textarea:visible, [contenteditable='true']:visible"
+      text: "Hello! Quick note from the demo agent — testing message send."
+      speed: 60
+      clear: false
+
+    - type: "wait"
+      duration: 400
+
+    # Zoom-in on the send action
+    - type: "zoom"
+      selector: "form:has(textarea:visible, [contenteditable='true']:visible) button[type='submit']:visible, form:has(textarea:visible, [contenteditable='true']:visible) button:visible, form:has(textarea:visible, [contenteditable='true']:visible) [role='button']:visible, button[type='submit']:visible, button:has-text('Send'):visible, [role='button']:has-text('Send'):visible"
+      scale: 1.6
+      duration: 2500
+      padding: 24
+
+    - type: "click"
+      selector: "form:has(textarea:visible, [contenteditable='true']:visible) button[type='submit']:visible, form:has(textarea:visible, [contenteditable='true']:visible) button:visible, form:has(textarea:visible, [contenteditable='true']:visible) [role='button']:visible, button[type='submit']:visible, button:has-text('Send'):visible, [role='button']:has-text('Send'):visible"
+
+    - type: "wait"
+      duration: 1500

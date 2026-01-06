@@ -12,6 +12,10 @@ export const DemoConfigSchema = z.object({
   videoPath: z.string().default('./recordings/demo.webm'),
   slowMo: z.number().int().min(0).optional(),
   headless: z.boolean().default(false),
+  // Optional Playwright storage state (recommended for sites with complex login/2FA).
+  storageStatePath: z.string().optional(),
+  // If set, save storage state to this path at the end of the run.
+  saveStorageStatePath: z.string().optional(),
 });
 
 // Auth schemas

@@ -17,6 +17,8 @@ export class ScriptLoader {
       throw new Error(`Unsupported file format: ${filePath}. Use .json, .yaml, or .yml`);
     }
 
+    parsed = this.interpolateEnvVars(parsed);
+
     try {
       const validated = DemoScriptSchema.parse(parsed);
       return validated;
@@ -38,7 +40,39 @@ export class ScriptLoader {
       .join('\n');
   }
 
+  private interpolateEnvVars(value: unknown): unknown {
+    if (typeof value === 'string') {
+      // Supports patterns like "${MY_ENV_VAR}" anywhere inside the string.
+      // Example: "hello ${NAME}" -> "hello Alex"
+      return value.replace(/\$\{([A-Z0-9_]+)\}/g, (_match, varName: string) => {
+        const resolved = process.env[varName];
+        if (resolved === undefined) {
+          throw new Error(
+            `Missing environment variable "${varName}". ` +
+              `Set it in your shell (e.g. export ${varName}=...) before running the demo.`
+          );
+        }
+        return resolved;
+      });
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((v) => this.interpolateEnvVars(v));
+    }
+
+    if (value && typeof value === 'object') {
+      const obj = value as Record<string, unknown>;
+      const out: Record<string, unknown> = {};
+      for (const [k, v] of Object.entries(obj)) {
+        out[k] = this.interpolateEnvVars(v);
+      }
+      return out;
+    }
+
+    return value;
+  }
+
   validate(script: unknown): DemoScript {
-    return DemoScriptSchema.parse(script);
+    return DemoScriptSchema.parse(this.interpolateEnvVars(script));
   }
 }

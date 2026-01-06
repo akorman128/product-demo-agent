@@ -4,6 +4,7 @@ import { Command } from 'commander';
 import { DemoPlayer } from './core/demo-player.js';
 import chalk from 'chalk';
 import { readFile } from 'fs/promises';
+import { loadDotenv } from './utils/dotenv.js';
 
 const program = new Command();
 
@@ -20,6 +21,9 @@ program
   .name('demo-player')
   .description('AI-powered scripted product demo system with browser automation')
   .version(await getPackageVersion());
+
+// Load local .env (if present) so scripts can use ${ENV_VAR} safely.
+loadDotenv();
 
 program
   .command('play')

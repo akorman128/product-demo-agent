@@ -76,6 +76,28 @@ Options:
   --screenshot-on-error   Capture screenshot on error (default: true)
 ```
 
+### Environment Variables (.env)
+
+The CLI automatically loads a local `.env` file (if present) before running or validating scripts. This lets you safely use `${ENV_VAR}` in YAML without committing secrets.
+
+```bash
+cp env.example .env
+# edit .env with your real values
+npm run demo play scripts/fanfix-send-message.yaml
+```
+
+### Saving & Reusing Login Sessions (storage state)
+
+For sites with complex login (SSO/2FA/bot checks), it’s usually more reliable to log in once manually and reuse the session:
+
+```bash
+# 1) capture session state (interactive)
+npm run demo play scripts/fanfix-capture-session.yaml
+
+# 2) then run demos that reference config.storageStatePath
+npm run demo play scripts/fanfix-send-message.yaml
+```
+
 ### Validate a Script
 
 ```bash
@@ -110,8 +132,9 @@ auth:
   type: "form"
   url: "/login"
   credentials:
-    username: "demo@example.com"
-    password: "demo123"
+    # Tip: use env vars so you don't commit secrets:
+    username: "${APP_USERNAME}"
+    password: "${APP_PASSWORD}"
   selectors:
     usernameField: "#email"
     passwordField: "#password"
@@ -123,8 +146,8 @@ auth:
 ```yaml
 auth:
   type: "basic"
-  username: "user"
-  password: "pass"
+  username: "${BASIC_AUTH_USERNAME}"
+  password: "${BASIC_AUTH_PASSWORD}"
 ```
 
 #### No Auth
@@ -302,11 +325,13 @@ const narrations = await engine.generateForSteps('Demo Name', steps);
 ### Selector Strategy
 
 1. Use `data-testid` attributes when available:
+
    ```yaml
    selector: "[data-testid='submit-button']"
    ```
 
 2. Fallback to stable CSS selectors:
+
    ```yaml
    selector: ".btn-primary.submit"
    ```
@@ -334,7 +359,7 @@ const narrations = await engine.generateForSteps('Demo Name', steps);
 
 ## Architecture
 
-```
+```text
 src/
 ├── types/          # Zod schemas and TypeScript types
 ├── core/           # DemoPlayer and ScriptLoader
@@ -354,11 +379,13 @@ src/
 ## Video Output
 
 Videos are recorded in WebM format with:
+
 - Resolution: 1920x1080 (configurable)
 - Codec: VP9 (default Playwright codec)
 - Location: Specified in `config.videoPath`
 
 For production use, consider post-processing:
+
 ```bash
 # Convert to MP4
 ffmpeg -i demo.webm -c:v libx264 -preset slow -crf 22 demo.mp4

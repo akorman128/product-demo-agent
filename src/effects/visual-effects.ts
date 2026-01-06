@@ -125,13 +125,10 @@ export class VisualEffects {
       duration = 2000,
     } = options;
 
-    await this.page.evaluate(
-      ({ selector, color, borderWidth, style }) => {
-        const element = document.querySelector(selector);
-        if (!element) {
-          throw new Error(`Element not found: ${selector}`);
-        }
-
+    const locator = this.page.locator(selector).first();
+    await locator.waitFor({ state: 'visible', timeout: 30000 });
+    await locator.evaluate(
+      (element, { color, borderWidth, style }) => {
         const rect = element.getBoundingClientRect();
         const highlight = document.createElement('div');
         highlight.className = `demo-highlight ${style}`;
@@ -147,7 +144,7 @@ export class VisualEffects {
 
         document.body.appendChild(highlight);
       },
-      { selector, color, borderWidth, style }
+      { color, borderWidth, style }
     );
 
     if (duration > 0) {
@@ -165,13 +162,10 @@ export class VisualEffects {
       padding = 20,
     } = options;
 
-    await this.page.evaluate(
-      ({ selector, scale, padding }) => {
-        const element = document.querySelector(selector);
-        if (!element) {
-          throw new Error(`Element not found: ${selector}`);
-        }
-
+    const locator = this.page.locator(selector).first();
+    await locator.waitFor({ state: 'visible', timeout: 30000 });
+    await locator.evaluate(
+      (element, { scale, padding }) => {
         const rect = element.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
@@ -189,7 +183,7 @@ export class VisualEffects {
         document.body.style.transition = 'transform 0.5s cubic-bezier(0.4, 0.0, 0.2, 1)';
         document.body.setAttribute('data-demo-zoomed', 'true');
       },
-      { selector, scale, padding }
+      { scale, padding }
     );
 
     if (duration > 0) {
@@ -207,13 +201,10 @@ export class VisualEffects {
       duration = 2500,
     } = options;
 
-    await this.page.evaluate(
-      ({ selector, dimness, borderRadius }) => {
-        const element = document.querySelector(selector);
-        if (!element) {
-          throw new Error(`Element not found: ${selector}`);
-        }
-
+    const locator = this.page.locator(selector).first();
+    await locator.waitFor({ state: 'visible', timeout: 30000 });
+    await locator.evaluate(
+      (element, { dimness, borderRadius }) => {
         const rect = element.getBoundingClientRect();
 
         const overlay = document.createElement('div');
@@ -263,7 +254,7 @@ export class VisualEffects {
         overlay.appendChild(svg);
         document.body.appendChild(overlay);
       },
-      { selector, dimness, borderRadius }
+      { dimness, borderRadius }
     );
 
     if (duration > 0) {
@@ -339,7 +330,8 @@ export class VisualEffects {
   }
 
   async clearAll(): Promise<void> {
-    await Promise.all([
+    // Cleanup should never mask the real failure. Pages can be closed by the time we get here.
+    await Promise.allSettled([
       this.clearHighlights(),
       this.clearZoom(),
       this.clearSpotlight(),

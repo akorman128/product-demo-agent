@@ -16,6 +16,7 @@ import { NarrationExecutor } from '../executors/narration-executor.js';
 import { PauseExecutor } from '../executors/pause-executor.js';
 import { mkdir } from 'fs/promises';
 import { dirname } from 'path';
+import { existsSync } from 'fs';
 
 export interface DemoPlayerOptions {
   headless?: boolean;
@@ -54,6 +55,12 @@ export class DemoPlayer {
 
       await this.executeSteps(script.demo.steps);
 
+      if (config.saveStorageStatePath && this.context) {
+        await mkdir(dirname(config.saveStorageStatePath), { recursive: true });
+        await this.context.storageState({ path: config.saveStorageStatePath });
+        console.log(`💾 Saved session state to: ${config.saveStorageStatePath}`);
+      }
+
       console.log('\n✅ Demo completed successfully!');
       console.log(`📹 Video saved to: ${config.videoPath}\n`);
 
@@ -61,9 +68,13 @@ export class DemoPlayer {
       console.error('\n❌ Demo failed:', error);
 
       if (options.screenshotOnError && this.page) {
-        const errorScreenshot = './error-screenshot.png';
-        await this.page.screenshot({ path: errorScreenshot, fullPage: true });
-        console.log(`📸 Error screenshot saved to: ${errorScreenshot}\n`);
+        try {
+          const errorScreenshot = './error-screenshot.png';
+          await this.page.screenshot({ path: errorScreenshot, fullPage: true });
+          console.log(`📸 Error screenshot saved to: ${errorScreenshot}\n`);
+        } catch {
+          // Ignore screenshot failures (e.g., page already closed)
+        }
       }
 
       throw error;
@@ -82,8 +93,16 @@ export class DemoPlayer {
       slowMo: options.slowMo ?? config.slowMo,
     });
 
+    if (config.storageStatePath && !existsSync(config.storageStatePath)) {
+      throw new Error(
+        `storageStatePath not found: ${config.storageStatePath}\n` +
+          `Run "npm run demo play scripts/fanfix-capture-session.yaml" once to create it, then rerun this demo.`
+      );
+    }
+
     this.context = await this.browser.newContext({
       viewport: config.viewport || { width: 1920, height: 1080 },
+      ...(config.storageStatePath ? { storageState: config.storageStatePath } : {}),
       recordVideo: {
         dir: dirname(config.videoPath),
         size: config.viewport || { width: 1920, height: 1080 },
@@ -125,13 +144,41 @@ export class DemoPlayer {
         ? auth.url
         : `${script.demo.config.baseUrl}${auth.url}`;
 
-      await this.page.goto(loginUrl);
+      try {
+        await this.page.goto(loginUrl, { waitUntil: 'domcontentloaded' });
 
-      await this.page.fill(auth.selectors.usernameField, auth.credentials.username);
-      await this.page.fill(auth.selectors.passwordField, auth.credentials.password);
-      await this.page.click(auth.selectors.submitButton);
+        // Use explicit waits so failures are clear and actionable.
+        await this.page.waitForSelector(auth.selectors.usernameField, { state: 'visible', timeout: 30000 });
+        await this.page.fill(auth.selectors.usernameField, auth.credentials.username);
 
-      await this.page.waitForLoadState('networkidle');
+        await this.page.waitForSelector(auth.selectors.passwordField, { state: 'visible', timeout: 30000 });
+        await this.page.fill(auth.selectors.passwordField, auth.credentials.password);
+
+        await this.page.waitForSelector(auth.selectors.submitButton, { state: 'visible', timeout: 30000 });
+        await this.page.click(auth.selectors.submitButton);
+
+        await this.page.waitForLoadState('networkidle');
+      } catch (error) {
+        const currentUrl = this.page.url();
+        try {
+          const authErrorScreenshot = './auth-error.png';
+          await this.page.screenshot({ path: authErrorScreenshot, fullPage: true });
+          console.log(`📸 Auth error screenshot saved to: ${authErrorScreenshot}`);
+        } catch {
+          // Ignore screenshot failures (e.g., page already closed)
+        }
+
+        throw new Error(
+          `Authentication failed.\n` +
+            `- Login URL: ${loginUrl}\n` +
+            `- Current URL: ${currentUrl}\n` +
+            `- usernameField: ${auth.selectors.usernameField}\n` +
+            `- passwordField: ${auth.selectors.passwordField}\n` +
+            `- submitButton: ${auth.selectors.submitButton}\n` +
+            `Original error: ${String(error)}\n` +
+            `Tip: update auth.url + selectors to match the actual login form (or use manual login + session reuse).`
+        );
+      }
 
     } else if (auth.type === 'basic') {
       await this.context?.setHTTPCredentials({

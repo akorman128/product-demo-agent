@@ -1,0 +1,27 @@
+demo:
+  name: "Fanfix - Capture Session State"
+  description: "Opens Fanfix auth in a real browser so you can log in manually, then saves Playwright storage state for future demos."
+
+  config:
+    baseUrl: "https://creator.fanfix.dev"
+    viewport:
+      width: 1920
+      height: 1080
+    videoPath: "./recordings/fanfix-capture-session.webm"
+    slowMo: 300
+    headless: false
+    saveStorageStatePath: "./.sessions/fanfix-storage-state.json"
+
+  auth:
+    type: "none"
+
+  steps:
+    - type: "navigate"
+      url: "https://creator.fanfix.dev/login"
+      wait: "load"
+
+    - type: "pause"
+      message: "Log in completely (including any 2FA). When you see you're logged in, press Enter to save session state and finish."
+
+    - type: "wait"
+      duration: 500
